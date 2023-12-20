@@ -29,8 +29,6 @@ namespace Evernote
             }
         }
 
-        //public static void Build
-
         protected override void OnStartup(StartupEventArgs e)
         {
             BuildConfiguration();
