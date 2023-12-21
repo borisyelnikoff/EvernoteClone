@@ -13,13 +13,11 @@ namespace Evernote.ViewModel.Commands
 
         public NotesVM NotesVM { get; set; } = notesVM;
 
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
+        public bool CanExecute(object parameter) => true;
 
-        public void Execute(object parameter)
+        public async void Execute(object parameter)
         {
+            await NotesVM.CreateNotebook();
         }
     }
 }

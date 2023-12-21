@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Evernote.View"
         xmlns:vm="clr-namespace:Evernote.ViewModel"
         mc:Ignorable="d"
-        Title="NotesWindow" Height="300" Width="600">
+        Title="NotesWindow" Height="480" Width="600">
     <Window.Resources>
         <vm:NotesVM x:Key="vm"/>
     </Window.Resources>
@@ -25,7 +25,8 @@
         </Menu>
         <ListView DockPanel.Dock="Left"
                   Width="140"
-                  ItemsSource="{Binding Notebooks}">
+                  ItemsSource="{Binding Notebooks}"
+                  SelectedItem="{Binding SelectedNotebook, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>

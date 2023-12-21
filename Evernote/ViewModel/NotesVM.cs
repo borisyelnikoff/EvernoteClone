@@ -1,6 +1,7 @@
 ﻿using Evernote.Model;
 using Evernote.Persistence;
 using Evernote.ViewModel.Commands;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Evernote.ViewModel
 {
@@ -19,6 +21,9 @@ namespace Evernote.ViewModel
         {
             NewNotebookCommand = new NewNotebookCommand(this);
             NewNoteCommand = new NewNoteCommand(this);
+            Notebooks = [];
+            Notes = [];
+            Application.Current.Dispatcher.BeginInvoke(async () => await GetNotebooks());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -37,6 +42,8 @@ namespace Evernote.ViewModel
             set 
             { 
                 _selectedNotebook = value; 
+                OnPropertyChanged(nameof(SelectedNotebook));
+                Application.Current.Dispatcher.BeginInvoke(async () => await GetNotes());
             }
         }
 
@@ -48,6 +55,7 @@ namespace Evernote.ViewModel
                 Name = "New notebook"
             });
             await context.SaveChangesAsync();
+            await GetNotebooks();
         }
 
         public async Task CreateNoteAsync(int notebookId)
@@ -61,6 +69,41 @@ namespace Evernote.ViewModel
                 Title = "New note"
             });
             await context.SaveChangesAsync();
+            await GetNotes();
+        }
+
+        private async Task GetNotebooks()
+        {
+            using var context = new EvernoteDbContext();
+            var notebooks = await context.Notebooks.ToListAsync();
+            Notebooks.Clear();
+            foreach (var notebook in notebooks) 
+            {
+                Notebooks.Add(notebook);
+            }
+        }
+
+        private async Task GetNotes()
+        {
+            if (SelectedNotebook is null)
+            {
+                return;
+            }
+
+            using var context = new EvernoteDbContext();
+            var notes = await context.Notes
+                .Where(n => n.NotebookId == SelectedNotebook.Id)
+                .ToListAsync();
+            Notes.Clear();
+            foreach (var note in notes)
+            {
+                Notes.Add(note);
+            }
+        }
+
+        private void OnPropertyChanged(string propertyName) 
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

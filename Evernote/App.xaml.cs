@@ -16,6 +16,8 @@ namespace Evernote
 
         public static IConfiguration Configuration { get; private set; }
 
+        private static string _connectionString { get; set; }
+
         public static string ConnectionString
         {
             get
@@ -25,8 +27,10 @@ namespace Evernote
                     BuildConfiguration();
                 }
 
-                return Configuration.GetConnectionString(DbName);
+                return _connectionString;
             }
+
+            set => _connectionString = value;
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -40,6 +44,7 @@ namespace Evernote
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
+            ConnectionString = Configuration.GetConnectionString(DbName);
         }
     }
 }
