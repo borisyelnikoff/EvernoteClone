@@ -7,11 +7,11 @@ using System.Windows.Input;
 
 namespace Evernote.ViewModel.Commands
 {
-    public class NewNotebookCommand(NoteVM noteVM) : ICommand
+    public class NewNotebookCommand(NotesVM notesVM) : ICommand
     {
         public event EventHandler CanExecuteChanged;
 
-        public NoteVM NoteVM { get; set; } = noteVM;
+        public NotesVM NotesVM { get; set; } = notesVM;
 
         public bool CanExecute(object parameter)
         {

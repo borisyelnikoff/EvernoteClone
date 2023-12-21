@@ -1,4 +1,5 @@
 ﻿using Evernote.Model;
+using Evernote.Persistence;
 using Evernote.ViewModel.Commands;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Evernote.ViewModel
 {
-    public class NoteVM : INotifyPropertyChanged
+    public class NotesVM : INotifyPropertyChanged
     {
 		private Notebook _selectedNotebook;
 
-        public NoteVM()
+        public NotesVM()
         {
             NewNotebookCommand = new NewNotebookCommand(this);
             NewNoteCommand = new NewNoteCommand(this);
@@ -39,5 +40,27 @@ namespace Evernote.ViewModel
             }
         }
 
+        public async Task CreateNotebook()
+        {
+            using var context = new EvernoteDbContext();
+            context.Notebooks.Add(new Notebook()
+            {
+                Name = "New notebook"
+            });
+            await context.SaveChangesAsync();
+        }
+
+        public async Task CreateNoteAsync(int notebookId)
+        {
+            using var context = new EvernoteDbContext();
+            context.Notes.Add(new Note()
+            {
+                NotebookId = notebookId,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Title = "New note"
+            });
+            await context.SaveChangesAsync();
+        }
     }
 }
