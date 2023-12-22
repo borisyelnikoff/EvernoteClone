@@ -27,7 +27,7 @@
             <TextBlock x:Name="statusTextBlock"/>
         </StatusBar>
         <ListView DockPanel.Dock="Left"
-                  Width="140"
+                  Width="150"
                   ItemsSource="{Binding Notebooks}"
                   SelectedItem="{Binding SelectedNotebook, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListView.ItemTemplate>
@@ -37,7 +37,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <ListView DockPanel.Dock="Left"
-                  Width="140"
+                  Width="150"
                   ItemsSource="{Binding Notes}">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -50,16 +50,34 @@
                 <Button x:Name="speachButton"
                         Content="Speach"
                         Click="SpeachButton_Click"/>
-                <Button x:Name="boldButton"
-                        Click="boldButton_Click">
+                <ToggleButton x:Name="boldButton"
+                              Click="BoldButton_Click">
                     <TextBlock Text="B"
                                FontWeight="Bold"/>
-                </Button>
+                </ToggleButton>
+                <ToggleButton x:Name="italicButton"
+                              Click="ItalicButton_Click">
+                    <TextBlock Text="I"
+                               FontStyle="Italic"/>
+                </ToggleButton>
+                <ToggleButton x:Name="underlineButton"
+                              Click="UnderlineButton_Click">
+                    <TextBlock Text="U"
+                               TextDecorations="Underline"/>
+                </ToggleButton>
+                <ComboBox x:Name="fontFamilyComboBox"
+                          Width="100"
+                          SelectionChanged="FontFamilyComboBox_SelectionChanged"/>
+                <ComboBox x:Name="fontSizeComboBox"
+                          Width="50"
+                          IsEditable="True"
+                          TextBoxBase.TextChanged="FontSizeComboBox_TextChanged"/>
             </ToolBar>
         </ToolBarTray>
         <Grid>
             <RichTextBox x:Name="contentRichTextBox"
-                         TextChanged="contentRichTextBox_TextChanged"/>
+                         TextChanged="ContentRichTextBox_TextChanged"
+                         SelectionChanged="ContentRichTextBox_SelectionChanged"/>
         </Grid>
     </DockPanel>
 </Window>
