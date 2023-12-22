@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Evernote.View"
         xmlns:vm="clr-namespace:Evernote.ViewModel"
         mc:Ignorable="d"
-        Title="NotesWindow" Height="480" Width="600">
+        Title="NotesWindow" Height="600" Width="800">
     <Window.Resources>
         <vm:NotesVM x:Key="vm"/>
     </Window.Resources>
@@ -23,10 +23,13 @@
                           Click="ExitMenuItem_Click"/>
             </MenuItem>
         </Menu>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock x:Name="statusTextBlock"/>
+        </StatusBar>
         <ListView DockPanel.Dock="Left"
                   Width="140"
                   ItemsSource="{Binding Notebooks}"
-                  SelectedItem="{Binding SelectedNotebook, Mode=TwoWay}">
+                  SelectedItem="{Binding SelectedNotebook, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>
@@ -44,9 +47,19 @@
         </ListView>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
-                <Button Content="Speach"
+                <Button x:Name="speachButton"
+                        Content="Speach"
                         Click="SpeachButton_Click"/>
+                <Button x:Name="boldButton"
+                        Click="boldButton_Click">
+                    <TextBlock Text="B"
+                               FontWeight="Bold"/>
+                </Button>
             </ToolBar>
         </ToolBarTray>
+        <Grid>
+            <RichTextBox x:Name="contentRichTextBox"
+                         TextChanged="contentRichTextBox_TextChanged"/>
+        </Grid>
     </DockPanel>
 </Window>
