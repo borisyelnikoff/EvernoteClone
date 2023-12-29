@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Evernote.View"
         xmlns:vm="clr-namespace:Evernote.ViewModel"
+        xmlns:uc="clr-namespace:Evernote.View.UserControls"
         mc:Ignorable="d"
-        Title="NotesWindow" Height="600" Width="800">
+        Title="NotesWindow" Height="600" Width="1200">
     <Window.Resources>
         <vm:NotesVM x:Key="vm"/>
     </Window.Resources>
@@ -27,23 +28,42 @@
             <TextBlock x:Name="statusTextBlock"/>
         </StatusBar>
         <ListView DockPanel.Dock="Left"
-                  Width="150"
+                  Background="DodgerBlue"
+                  Width="200"
                   ItemsSource="{Binding Notebooks}"
                   SelectedItem="{Binding SelectedNotebook, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
+                    <uc:NotebookControl Notebook="{Binding}">
+                        <uc:NotebookControl.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Rename"/>
+                                <MenuItem Header="Delete" 
+                                              Command="{Binding Source={StaticResource vm}, Path=DeleteNotebookCommand}"
+                                              CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </uc:NotebookControl.ContextMenu>
+                    </uc:NotebookControl>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
         <ListView DockPanel.Dock="Left"
-                  Width="150"
+                  Width="200"
                   ItemsSource="{Binding Notes}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Title}"/>
+                    <uc:NoteControl Note="{Binding}">
+                        <uc:NoteControl.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Rename"/>
+                                <MenuItem Header="Delete" 
+                                              Command="{Binding Source={StaticResource vm}, Path=DeleteNoteCommand}"
+                                              CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </uc:NoteControl.ContextMenu>
+                    </uc:NoteControl>
                 </DataTemplate>
-            </ListView.ItemTemplate>            
+            </ListView.ItemTemplate>
         </ListView>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>

@@ -21,6 +21,8 @@ namespace Evernote.ViewModel
         {
             NewNotebookCommand = new NewNotebookCommand(this);
             NewNoteCommand = new NewNoteCommand(this);
+            DeleteNotebookCommand = new DeleteNotebookCommand(this);
+            DeleteNoteCommand = new DeleteNoteCommand(this);
             Notebooks = [];
             Notes = [];
             Application.Current.Dispatcher.BeginInvoke(async () => await GetNotebooks());
@@ -35,6 +37,10 @@ namespace Evernote.ViewModel
         public NewNotebookCommand NewNotebookCommand { get; set; }
 
         public NewNoteCommand NewNoteCommand { get; set; }
+
+        public DeleteNotebookCommand DeleteNotebookCommand { get; set; }
+
+        public DeleteNoteCommand DeleteNoteCommand { get; set; }
 
         public Notebook SelectedNotebook
         {
@@ -72,6 +78,37 @@ namespace Evernote.ViewModel
             await GetNotes();
         }
 
+        public async Task DeleteNotebookAsync(int notebookId)
+        {
+            using var context = new EvernoteDbContext();
+            var notebook = await context.Notebooks.SingleOrDefaultAsync(n => n.Id == notebookId);
+            if (notebook is null)
+            {
+                return;
+            }
+
+            var notes = context.Notes.Where(n => n.NotebookId == notebookId);
+            context.Notes.RemoveRange(notes);
+            context.Notebooks.Remove(notebook);
+            await context.SaveChangesAsync();
+            Notes.Clear();
+            await GetNotebooks();
+        }
+
+        public async Task DeleteNoteAsync(int noteId)
+        {
+            using var context = new EvernoteDbContext();
+            var note = await context.Notes.SingleOrDefaultAsync(n => n.Id == noteId);
+            if (note is null)
+            {
+                return;
+            }
+
+            context.Notes.Remove(note);
+            await context.SaveChangesAsync();
+            await GetNotes();
+        }
+
         private async Task GetNotebooks()
         {
             using var context = new EvernoteDbContext();
@@ -105,5 +142,6 @@ namespace Evernote.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
     }
 }
