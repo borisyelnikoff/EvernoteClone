@@ -18,8 +18,8 @@ namespace Evernote.ViewModel
     public class NotesVM : INotifyPropertyChanged
     {
 		private Notebook _selectedNotebook;
-
         private Note _selectedNote;
+        private bool _isNotebookEdited;
 
         public NotesVM()
         {
@@ -27,6 +27,8 @@ namespace Evernote.ViewModel
             NewNoteCommand = new NewNoteCommand(this);
             DeleteNotebookCommand = new DeleteNotebookCommand(this);
             DeleteNoteCommand = new DeleteNoteCommand(this);
+            RenameNotebookStartCommand = new RenameNotebookStartCommand(this);
+            IsNotebookEdited = false;
             Notebooks = [];
             Notes = [];
             Application.Current.Dispatcher.BeginInvoke(async () => await GetNotebooks());
@@ -42,9 +44,11 @@ namespace Evernote.ViewModel
 
         public NewNotebookCommand NewNotebookCommand { get; set; }
 
-        public NewNoteCommand NewNoteCommand { get; set; }
-
         public DeleteNotebookCommand DeleteNotebookCommand { get; set; }
+
+        public RenameNotebookStartCommand RenameNotebookStartCommand { get; set; }
+
+        public NewNoteCommand NewNoteCommand { get; set; }
 
         public DeleteNoteCommand DeleteNoteCommand { get; set; }
 
@@ -70,6 +74,16 @@ namespace Evernote.ViewModel
             }
         }
 
+        public bool IsNotebookEdited
+        {
+            get => _isNotebookEdited;
+            set
+            {
+                _isNotebookEdited = value;
+                OnPropertyChanged(nameof(IsNotebookEdited));
+            }
+        }
+
         public async Task CreateNotebookAsync()
         {
             using var context = new EvernoteDbContext();
@@ -81,6 +95,38 @@ namespace Evernote.ViewModel
             await GetNotebooks();
         }
 
+        public async Task DeleteNotebookAsync()
+        {
+            if (SelectedNotebook is null)
+            {
+                return;
+            }
+
+            using var context = new EvernoteDbContext();
+            var notes = context.Notes.Where(n => n.NotebookId == SelectedNotebook.Id);
+            context.Notes.RemoveRange(notes);
+            context.Notebooks.Remove(SelectedNotebook);
+            await context.SaveChangesAsync();
+            Notes.Clear();
+            await GetNotebooks();
+        }
+
+        public void RenameNotebookStart() => IsNotebookEdited = true;
+
+        public async Task RenameNotebookConfirm()
+        {
+            if (SelectedNotebook is null) 
+            {
+                return;
+            }
+
+            IsNotebookEdited = false;
+            using var context = new EvernoteDbContext();
+            var notebook = await context.Notebooks.SingleAsync(n => n.Id == SelectedNotebook.Id);
+            notebook.Name = SelectedNotebook.Name;
+            await context.SaveChangesAsync();
+        }
+
         public async Task CreateNoteAsync(int notebookId)
         {
             using var context = new EvernoteDbContext();
@@ -89,29 +135,13 @@ namespace Evernote.ViewModel
                 NotebookId = notebookId,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-                Title = "New note"
+                Title = $"Note for {DateTime.Now}"
             });
             await context.SaveChangesAsync();
             await GetNotes();
         }
 
-        public async Task DeleteNotebookAsync(int notebookId)
-        {
-            using var context = new EvernoteDbContext();
-            if (SelectedNotebook is null)
-            {
-                return;
-            }
-
-            var notes = context.Notes.Where(n => n.NotebookId == notebookId);
-            context.Notes.RemoveRange(notes);
-            context.Notebooks.Remove(SelectedNotebook);
-            await context.SaveChangesAsync();
-            Notes.Clear();
-            await GetNotebooks();
-        }
-
-        public async Task DeleteNoteAsync(int noteId)
+        public async Task DeleteNoteAsync()
         {
             if (SelectedNote is null)
             {
@@ -134,6 +164,7 @@ namespace Evernote.ViewModel
             using var context = new EvernoteDbContext();
             var noteInDb = await context.Notes.SingleOrDefaultAsync(n => n.Id == SelectedNote.Id);
             noteInDb.FileLocation = SelectedNote.FileLocation;
+            noteInDb.UpdatedAt = DateTime.Now;
             await context.SaveChangesAsync();
         }
 

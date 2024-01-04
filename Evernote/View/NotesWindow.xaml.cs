@@ -183,5 +183,15 @@ namespace Evernote.View
         }
 
         private TextRange GetContentFromDocument() => new TextRange(contentRichTextBox.Document.ContentStart, contentRichTextBox.Document.ContentEnd);
+
+        private async void EditNotebookTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedNotebook is null)
+            {
+                return;
+            }
+
+            await _viewModel.RenameNotebookConfirm();
+        }
     }
 }

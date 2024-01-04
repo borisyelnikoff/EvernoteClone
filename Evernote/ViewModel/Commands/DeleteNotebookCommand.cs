@@ -23,7 +23,7 @@ namespace Evernote.ViewModel.Commands
             if (decision == MessageBoxResult.Yes)
             {
                 var notebookId = parameter as Notebook;
-                await NotesVM.DeleteNotebookAsync(notebookId.Id);
+                await NotesVM.DeleteNotebookAsync();
             }
         }
     }

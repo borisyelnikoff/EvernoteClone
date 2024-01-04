@@ -22,8 +22,7 @@ namespace Evernote.ViewModel.Commands
             var decision = MessageBox.Show("Are you sure You want to delete this note?", "Confirm delete action", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (decision == MessageBoxResult.Yes) 
             {
-                var note = parameter as Note;
-                await NotesVM.DeleteNoteAsync(note.Id);
+                await NotesVM.DeleteNoteAsync();
             }
         }
     }

@@ -6,10 +6,12 @@
         xmlns:local="clr-namespace:Evernote.View"
         xmlns:vm="clr-namespace:Evernote.ViewModel"
         xmlns:uc="clr-namespace:Evernote.View.UserControls"
+        xmlns:cv="clr-namespace:Evernote.View.Converters"
         mc:Ignorable="d"
         Title="NotesWindow" Height="600" Width="1200">
     <Window.Resources>
         <vm:NotesVM x:Key="vm"/>
+        <cv:BoolToVisibilityConverter x:Key="boolToVisibility"/>
     </Window.Resources>
     <DockPanel DataContext="{StaticResource vm}">
         <Menu DockPanel.Dock="Top">
@@ -34,16 +36,23 @@
                   SelectedItem="{Binding SelectedNotebook, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <uc:NotebookControl Notebook="{Binding}">
-                        <uc:NotebookControl.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Rename"/>
-                                <MenuItem Header="Delete" 
+                    <Grid>
+                        <uc:NotebookControl Notebook="{Binding}">
+                            <uc:NotebookControl.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Rename"
+                                              Command="{Binding Source={StaticResource vm}, Path=RenameNotebookStartCommand}"/>
+                                    <MenuItem Header="Delete" 
                                           Command="{Binding Source={StaticResource vm}, Path=DeleteNotebookCommand}"
                                           CommandParameter="{Binding}"/>
-                            </ContextMenu>
-                        </uc:NotebookControl.ContextMenu>
-                    </uc:NotebookControl>
+                                </ContextMenu>
+                            </uc:NotebookControl.ContextMenu>
+                        </uc:NotebookControl>
+                        <TextBox x:Name="editNotebookTextBox"
+                                 Text="{Binding Name, Mode=TwoWay}"
+                                 Visibility="{Binding Source={StaticResource vm}, Path=IsNotebookEdited, Converter={StaticResource boolToVisibility}}"
+                                 LostFocus="EditNotebookTextBox_LostFocus"/>
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
