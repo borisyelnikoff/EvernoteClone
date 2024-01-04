@@ -17,7 +17,7 @@ namespace Evernote.ViewModel.Commands
 
         public async void Execute(object parameter)
         {
-            await NotesVM.CreateNotebook();
+            await NotesVM.CreateNotebookAsync();
         }
     }
 }

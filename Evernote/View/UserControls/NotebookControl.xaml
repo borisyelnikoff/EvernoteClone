@@ -13,8 +13,7 @@
              FontSize="20"
              Margin="15">
     <Grid>
-        <TextBlock Text="{Binding Name}"/>
-        <TextBox x:Name="renameTextBox" 
-                 Visibility="Collapsed"/>
+        <TextBlock x:Name="notebookNameTextBox"
+                   Text="{Binding Name}"/>
     </Grid>
 </UserControl>

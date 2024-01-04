@@ -6,16 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace Evernote.ViewModel
 {
     public class NotesVM : INotifyPropertyChanged
     {
 		private Notebook _selectedNotebook;
+
+        private Note _selectedNote;
 
         public NotesVM()
         {
@@ -29,6 +33,8 @@ namespace Evernote.ViewModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<Note> SelectedNoteChanged;
 
         public ObservableCollection<Notebook> Notebooks { get; set; }
 
@@ -53,12 +59,23 @@ namespace Evernote.ViewModel
             }
         }
 
-        public async Task CreateNotebook()
+        public Note SelectedNote 
+        {
+            get => _selectedNote;
+            set
+            {
+                _selectedNote = value;
+                OnPropertyChanged(nameof(SelectedNote));
+                SelectedNoteChanged?.Invoke(this, SelectedNote);
+            }
+        }
+
+        public async Task CreateNotebookAsync()
         {
             using var context = new EvernoteDbContext();
             context.Notebooks.Add(new Notebook()
             {
-                Name = "New notebook"
+                Name = $"Notebook"
             });
             await context.SaveChangesAsync();
             await GetNotebooks();
@@ -81,15 +98,14 @@ namespace Evernote.ViewModel
         public async Task DeleteNotebookAsync(int notebookId)
         {
             using var context = new EvernoteDbContext();
-            var notebook = await context.Notebooks.SingleOrDefaultAsync(n => n.Id == notebookId);
-            if (notebook is null)
+            if (SelectedNotebook is null)
             {
                 return;
             }
 
             var notes = context.Notes.Where(n => n.NotebookId == notebookId);
             context.Notes.RemoveRange(notes);
-            context.Notebooks.Remove(notebook);
+            context.Notebooks.Remove(SelectedNotebook);
             await context.SaveChangesAsync();
             Notes.Clear();
             await GetNotebooks();
@@ -97,16 +113,34 @@ namespace Evernote.ViewModel
 
         public async Task DeleteNoteAsync(int noteId)
         {
-            using var context = new EvernoteDbContext();
-            var note = await context.Notes.SingleOrDefaultAsync(n => n.Id == noteId);
-            if (note is null)
+            if (SelectedNote is null)
             {
                 return;
             }
 
-            context.Notes.Remove(note);
+            using var context = new EvernoteDbContext();
+            context.Notes.Remove(SelectedNote);
             await context.SaveChangesAsync();
             await GetNotes();
+        }
+
+        public async Task UpdateNoteAsync()
+        {
+            if (SelectedNote is null)
+            {
+                return;
+            }
+
+            using var context = new EvernoteDbContext();
+            var noteInDb = await context.Notes.SingleOrDefaultAsync(n => n.Id == SelectedNote.Id);
+            noteInDb.FileLocation = SelectedNote.FileLocation;
+            await context.SaveChangesAsync();
+        }
+
+        private async Task UpdateNoteFileAsync(string newContent)
+        {
+            SelectedNote.FileLocation = Path.Combine(Directory.GetCurrentDirectory(), $"{SelectedNote.Id}.rtf");
+            await File.WriteAllTextAsync(SelectedNote.FileLocation, newContent);
         }
 
         private async Task GetNotebooks()

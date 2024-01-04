@@ -1,6 +1,9 @@
-﻿using Evernote.ViewModel.Helpers;
+﻿using Evernote.Model;
+using Evernote.ViewModel;
+using Evernote.ViewModel.Helpers;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
@@ -13,11 +16,15 @@ namespace Evernote.View
     /// </summary>
     public partial class NotesWindow : Window
     {
+        private readonly NotesVM _viewModel;
+
         public NotesWindow()
         {
             InitializeComponent();
             fontFamilyComboBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
             fontSizeComboBox.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 32, 48, 72 };
+            _viewModel = Resources["vm"] as NotesVM;
+            _viewModel.SelectedNoteChanged += OnSelectedNoteChanged;
         }
 
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
@@ -40,6 +47,7 @@ namespace Evernote.View
 
         private void ContentRichTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
+
             var totalCharacters = new TextRange(contentRichTextBox.Document.ContentStart, contentRichTextBox.Document.ContentEnd).Text.Trim().Length;
             statusTextBlock.Text = totalCharacters > 0 ? $"Document length: {totalCharacters} characters" : "";
         }
@@ -145,5 +153,35 @@ namespace Evernote.View
 
             contentRichTextBox.Selection.ApplyPropertyValue(FontSizeProperty, fontSizeComboBox.SelectedItem);
         }
+
+        private async void SaveNoteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedNote is null)
+            {
+                return;
+            }
+
+            _viewModel.SelectedNote.FileLocation = Path.Combine(Directory.GetCurrentDirectory(), $"{_viewModel.SelectedNote.Id}.rtf");
+            await _viewModel.UpdateNoteAsync();
+            var documentContent = GetContentFromDocument();
+            using var fileStream = new FileStream(_viewModel.SelectedNote.FileLocation, FileMode.Create);
+            documentContent.Save(fileStream, DataFormats.Rtf);
+        }
+
+        private void OnSelectedNoteChanged(object sender, Note note)
+        {
+            if (note is null || string.IsNullOrEmpty(note.FileLocation))
+            {
+                contentRichTextBox.Document.Blocks.Clear();
+
+                return;
+            }
+
+            using var fileStream = new FileStream(note.FileLocation, FileMode.Open);
+            var documentContent = GetContentFromDocument();
+            documentContent.Load(fileStream, DataFormats.Rtf);
+        }
+
+        private TextRange GetContentFromDocument() => new TextRange(contentRichTextBox.Document.ContentStart, contentRichTextBox.Document.ContentEnd);
     }
 }
