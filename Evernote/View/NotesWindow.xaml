@@ -50,7 +50,9 @@
                         </uc:NotebookControl>
                         <TextBox x:Name="editNotebookTextBox"
                                  Text="{Binding Name, Mode=TwoWay}"
-                                 Visibility="{Binding Source={StaticResource vm}, Path=IsNotebookEdited, Converter={StaticResource boolToVisibility}}"
+                                 FontSize="14"
+                                 FontStyle="Italic"
+                                 Visibility="{Binding IsBeingRenamed, Converter={StaticResource boolToVisibility}}"
                                  LostFocus="EditNotebookTextBox_LostFocus"/>
                     </Grid>
                 </DataTemplate>

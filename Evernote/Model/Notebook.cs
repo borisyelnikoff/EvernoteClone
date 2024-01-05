@@ -15,6 +15,8 @@ namespace Evernote.Model
         public int? UserId { get; set; }
         [MaxLength(50)]
         public string Name { get; set; }
+        [NotMapped]
+        public bool IsBeingRenamed { get; set; }
 
         public User User { get; set; }
     }

@@ -19,7 +19,6 @@ namespace Evernote.ViewModel
     {
 		private Notebook _selectedNotebook;
         private Note _selectedNote;
-        private bool _isNotebookEdited;
 
         public NotesVM()
         {
@@ -28,7 +27,6 @@ namespace Evernote.ViewModel
             DeleteNotebookCommand = new DeleteNotebookCommand(this);
             DeleteNoteCommand = new DeleteNoteCommand(this);
             RenameNotebookStartCommand = new RenameNotebookStartCommand(this);
-            IsNotebookEdited = false;
             Notebooks = [];
             Notes = [];
             Application.Current.Dispatcher.BeginInvoke(async () => await GetNotebooks());
@@ -74,16 +72,6 @@ namespace Evernote.ViewModel
             }
         }
 
-        public bool IsNotebookEdited
-        {
-            get => _isNotebookEdited;
-            set
-            {
-                _isNotebookEdited = value;
-                OnPropertyChanged(nameof(IsNotebookEdited));
-            }
-        }
-
         public async Task CreateNotebookAsync()
         {
             using var context = new EvernoteDbContext();
@@ -111,7 +99,15 @@ namespace Evernote.ViewModel
             await GetNotebooks();
         }
 
-        public void RenameNotebookStart() => IsNotebookEdited = true;
+        public void RenameNotebookStart()
+        {
+            var notebook = Notebooks.Single(n => n.Id == SelectedNotebook.Id);
+            var index = Notebooks.IndexOf(notebook);
+            notebook.IsBeingRenamed = true;
+            Notebooks.Remove(notebook); // Necessary to trigger CollectionChanged & UI refresh
+            Notebooks.Insert(index, notebook);
+            SelectedNotebook = notebook;
+        }
 
         public async Task RenameNotebookConfirm()
         {
@@ -120,11 +116,12 @@ namespace Evernote.ViewModel
                 return;
             }
 
-            IsNotebookEdited = false;
             using var context = new EvernoteDbContext();
             var notebook = await context.Notebooks.SingleAsync(n => n.Id == SelectedNotebook.Id);
             notebook.Name = SelectedNotebook.Name;
             await context.SaveChangesAsync();
+            Notebooks.Clear();
+            await GetNotebooks();
         }
 
         public async Task CreateNoteAsync(int notebookId)
