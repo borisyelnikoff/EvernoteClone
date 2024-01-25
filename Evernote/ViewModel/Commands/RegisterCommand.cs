@@ -15,11 +15,16 @@ namespace Evernote.ViewModel.Commands
 
         public bool CanExecute(object parameter)
         {
-            return true;
+            var user = parameter as UserDto;
+
+            return !string.IsNullOrWhiteSpace(user?.Username) &&
+                !string.IsNullOrWhiteSpace(user?.Password) &&
+                user.Password == user.ConfirmedPassword;
         }
 
-        public void Execute(object parameter)
+        public async void Execute(object parameter)
         {
+            await LoginViewModel.Register();
         }
     }
 }

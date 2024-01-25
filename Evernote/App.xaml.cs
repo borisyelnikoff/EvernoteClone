@@ -14,9 +14,11 @@ namespace Evernote
     {
         public const string DbName = "EvernoteDatabase";
 
-        public static IConfiguration Configuration { get; private set; }
+        private static string _connectionString;
 
-        private static string _connectionString { get; set; }
+        public static string UserId { get; set; } = string.Empty;
+
+        public static IConfiguration Configuration { get; private set; }
 
         public static string ConnectionString
         {

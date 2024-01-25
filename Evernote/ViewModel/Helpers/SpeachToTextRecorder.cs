@@ -12,11 +12,11 @@ namespace Evernote.ViewModel.Helpers
     public static class SpeechToTextRecorder
     {
         private const string Region = "germanywestcentral";
-        private const string Key = "986a546b737b4964a698418afe101b30";
+        private const string ApiKey = "986a546b737b4964a698418afe101b30";
 
         public static async Task<string> Record()
         {
-            var speechConfig = SpeechConfig.FromSubscription(Region, Key);
+            var speechConfig = SpeechConfig.FromSubscription(Region, ApiKey);
             using var audioConfig = AudioConfig.FromDefaultMicrophoneInput();
             using var recognizer = new SpeechRecognizer(speechConfig, audioConfig);
             var result = await recognizer.RecognizeOnceAsync();

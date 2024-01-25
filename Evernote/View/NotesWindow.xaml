@@ -67,7 +67,6 @@
                     <uc:NoteControl Note="{Binding}">
                         <uc:NoteControl.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Rename"/>
                                 <MenuItem Header="Delete" 
                                           Command="{Binding Source={StaticResource vm}, Path=DeleteNoteCommand}"
                                           CommandParameter="{Binding}"/>

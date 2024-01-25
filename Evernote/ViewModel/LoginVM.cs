@@ -11,12 +11,14 @@ namespace Evernote.ViewModel
 {
     public class LoginVM : INotifyPropertyChanged
     {
-        private User _user;
+        private UserDto _user;
+        private bool _isShowingRegisterView;
 
         public LoginVM()
         {
             RegisterCommand = new RegisterCommand(this);
             LoginCommand = new LoginCommand(this);
+            _user = new UserDto();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -25,7 +27,7 @@ namespace Evernote.ViewModel
 
         public LoginCommand LoginCommand { get; set; }
 
-        public User User
+        public UserDto User
         {
             get => _user;
             set
@@ -35,6 +37,80 @@ namespace Evernote.ViewModel
             }
         }
 
+        public bool IsRegisterVisible
+        {
+            get => _isShowingRegisterView;
+            set
+            {
+                _isShowingRegisterView = value;
+                OnPropertyChanged(nameof(IsRegisterVisible));
+                OnPropertyChanged(nameof(IsLoginVisible));
+            }
+        }
+
+        public string Username
+        {
+            get => User.Username;
+            set
+            {
+                User = new UserDto()
+                {
+                    FirstName = User.FirstName, 
+                    LastName = User.LastName,
+                    Username = value,
+                    Password = Password,
+                    ConfirmedPassword = ConfirmedPassword
+                };
+                OnPropertyChanged(nameof(User));
+            }
+        }
+
+        public string Password
+        {
+            get => User.Password;
+            set
+            {
+                User = new UserDto()
+                {
+                    FirstName = User.FirstName,
+                    LastName = User.LastName,
+                    Username = Username,
+                    Password = value,
+                    ConfirmedPassword = ConfirmedPassword
+                };
+                OnPropertyChanged(nameof(Password));
+            }
+        }
+
+        public string ConfirmedPassword
+        {
+            get => User.ConfirmedPassword;
+            set
+            {
+                User = new UserDto()
+                {
+                    FirstName = User.FirstName,
+                    LastName = User.LastName,
+                    Username = Username,
+                    Password = Password,
+                    ConfirmedPassword = value
+                };
+                OnPropertyChanged(nameof(ConfirmedPassword));
+            }
+        }
+
+        public bool IsLoginVisible => !IsRegisterVisible;
+
+        public void Login()
+        {
+        }
+
+        public async Task Register()
+        {
+        }
+
         private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public void SwitchView() => IsRegisterVisible = !IsRegisterVisible;
     }
 }

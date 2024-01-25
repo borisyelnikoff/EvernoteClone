@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Evernote.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,17 @@ namespace Evernote.View
     /// </summary>
     public partial class LoginWindow : Window
     {
+        private LoginVM _viewModel;
+
         public LoginWindow()
         {
             InitializeComponent();
+            _viewModel = Resources["vm"] as LoginVM;
+        }
+
+        private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _viewModel.SwitchView();
         }
     }
 }

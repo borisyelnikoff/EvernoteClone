@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Evernote.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,11 +16,15 @@ namespace Evernote.ViewModel.Commands
 
         public bool CanExecute(object parameter)
         {
-            return true;
+            var user = (parameter as UserDto);
+
+            return !string.IsNullOrWhiteSpace(user?.Username) &&
+                !string.IsNullOrWhiteSpace(user?.Password);
         }
 
         public void Execute(object parameter)
         {
+            LoginViewModel.Login();
         }
     }
 }

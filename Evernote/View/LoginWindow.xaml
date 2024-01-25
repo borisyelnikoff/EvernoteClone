@@ -4,9 +4,59 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Evernote.View"
+        xmlns:vm="clr-namespace:Evernote.ViewModel"
+        xmlns:cv="clr-namespace:Evernote.View.Converters"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="LoginWindow" Height="300" Width="300">
+    <Window.Resources>
+        <vm:LoginVM x:Key="vm"/>
+        <cv:BoolToVisibilityConverter x:Key="boolToVisibility"/>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource vm}">
+        <StackPanel Visibility="{Binding IsLoginVisible, Converter={StaticResource boolToVisibility}}">
+            <TextBlock Text="Username:"/>
+            <TextBox Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="Password:"/>
+            <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Login"
+                    Margin="0, 5"
+                    Command="{Binding LoginCommand}"
+                    CommandParameter="{Binding User}">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter Property="Background" Value="DodgerBlue"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <TextBlock Text="Register"
+                       Foreground="DodgerBlue"
+                       TextDecorations="Underline"
+                       MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"/>
+        </StackPanel>
+        <StackPanel Visibility="{Binding IsRegisterVisible, Converter={StaticResource boolToVisibility}}">
+            <TextBlock Text="First name:"/>
+            <TextBox Text="{Binding User.FirstName, Mode=TwoWay}"/>
+            <TextBlock Text="Last name:"/>
+            <TextBox Text="{Binding User.LastName, Mode=TwoWay}"/>
+            <TextBlock Text="Username:"/>
+            <TextBox Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="Password:"/>
+            <TextBox Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="Confirm password:"/>
+            <TextBox Text="{Binding ConfirmedPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Register"
+                    Margin="0, 5"
+                    Command="{Binding RegisterCommand}"
+                    CommandParameter="{Binding User}"/>
+            <TextBlock Text="Login"
+                       Foreground="DodgerBlue"
+                       TextDecorations="Underline"
+                       MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"/>
+        </StackPanel>
     </Grid>
 </Window>

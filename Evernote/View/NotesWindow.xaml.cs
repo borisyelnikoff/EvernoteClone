@@ -27,6 +27,19 @@ namespace Evernote.View
             _viewModel.SelectedNoteChanged += OnSelectedNoteChanged;
         }
 
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            if (string.IsNullOrEmpty(App.UserId))
+            {
+                var loginWindow = new LoginWindow
+                {
+                    Topmost = true
+                };
+                loginWindow.ShowDialog();
+            }
+        }
+
         private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
